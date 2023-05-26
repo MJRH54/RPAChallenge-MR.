@@ -113,7 +113,7 @@ def main():
         'DATES_LINK':"//button[@value = 'Specific Dates']",
         'DATE1':'//*[@id="startDate"]',
         'DATE2':'//*[@id="endDate"]',
-        'SHOW_MORE': "//button[@data-testid = 'search-show-more-button']",
+        'SHOW_MORE': "//div[@class = 'css-1t62hi8']",
         'IMAGE_BASE': "//ol[@data-testid = 'search-results']/",
     }
 
@@ -151,8 +151,11 @@ def main():
         #Charging all elements in the current filter page
 
         pageHeight = webController.execute_script(driver,'return document.body.scrollHeight')       #Calculate the height size in the current filter page
-        webController.execute_script(driver, f'window.scrollTo(0,{pageHeight})')                    #Go to end of the page
+        webController.execute_script(driver, f'window.scrollTo(0,{pageHeight})') #Go to end of the page
+        print('ANTES DE HACER CLICK')
+      
         while driver.is_element_visible(locDict['SHOW_MORE']):                                      #Click in show more while show more button exists
+            print('In While')
             webController.clickElement(driver,locDict['SHOW_MORE'])
             time.sleep(0.5)
             pageHeight = webController.execute_script(driver,'return document.body.scrollHeight')
