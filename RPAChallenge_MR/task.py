@@ -104,18 +104,17 @@ def main():
     webController = WebControl()
     #LocatorsDict (Is easier to control web navigation in this form) 
     locDict = {
-        'SEARCH_ICON':'//*[@id="app"]/div[2]/div[2]/header/section[1]/div[1]/div[2]/button',
-        'SEARCH_INPUT':'//*[@id="app"]/div[2]/div[2]/header/section[1]/div[1]/div[2]/div/form/div/input',
-        'GO':'//*[@id="app"]/div[2]/div[2]/header/section[1]/div[1]/div[2]/div/form/button',
-        'SECTION_MENU': '//*[@id="site-content"]/div/div[1]/div[2]/div/div/div[2]/div/div/button',
-        'SECTION_CBOX': '//*[@id="site-content"]/div/div[1]/div[2]/div/div/div[2]/div/div/div/ul/',
-        'DATES_MENU':'//*[@id="site-content"]/div/div[1]/div[2]/div/div/div[1]/div/div/button',
-        'DATES_LINK':'//*[@id="site-content"]/div/div[1]/div[2]/div/div/div[1]/div/div/div/ul/li[6]/button',
+        'SEARCH_ICON':"//button[@data-test-id = 'search-button']",
+        'SEARCH_INPUT':"//input[@name = 'query']",
+        'GO':"//button[@data-test-id = 'search-submit']",
+        'SECTION_MENU': "//button[@data-testid = 'search-multiselect-button']",
+        'SECTION_CBOX': "//ul[@data-testid = 'multi-select-dropdown-list']/",
+        'DATES_MENU':"//button[@data-testid = 'search-date-dropdown-a']",
+        'DATES_LINK':"//button[@value = 'Specific Dates']",
         'DATE1':'//*[@id="startDate"]',
         'DATE2':'//*[@id="endDate"]',
-        'SHOW_MORE': '//button[contains(text(),"Show More")]',
-        'IMAGE_BASE':'//*[@id="site-content"]/div/div[2]/div[2]/ol/',
-        'IMAGE_BASE_2':'//*[@id="site-content"]/div/div[2]/div/ol/'
+        'SHOW_MORE': "//button[@data-testid = 'search-show-more-button']",
+        'IMAGE_BASE': "//ol[@data-testid = 'search-results']/",
     }
 
     try:
@@ -165,6 +164,7 @@ def main():
         datesDict = {}
         valuesDict = {}
         picturesCont = 0
+        imagesList = []
         #Get all nodes in the list of browser. 
         notesNodesLength = webController.execute_script(driver,"return document.getElementsByClassName('css-46b038')[0].children[0].children.length")
         for i in range(notesNodesLength):
@@ -194,7 +194,7 @@ def main():
                 picturesCont+=1
                 imageName = 'pictureNote_{}.png'.format(picturesCont)
                 #Download Picture:
-                webController.download_image(driver,'li[{}]/div/div/figure/div/img'.format(i+1),imageName)
+                fileName = webController.download_image(driver,locDict['IMAGE_BASE']+'li[{}]/div/div/figure/div/img'.format(i+1),imageName)
                 #count of frases in the tile
                 countPhrases += title.lower().count(text.lower())
                 #count of frases in the description
@@ -204,6 +204,9 @@ def main():
                     flagMoney = True
                 #Save the data values into dictValues
                 valuesDict[i] = (title,description,imageName,countPhrases,flagMoney)
+                #Appending image whole path into imageList
+                imagesList.append(fileName)
+
             except BufferError as e:
                 exit(e)
 
@@ -211,6 +214,8 @@ def main():
 
         #Export data to excel.
         exportToExcel(wi,getcwd()+'/OUTPUT.xlsx',newDatesDict,valuesDict)
+        #Save the images as a WI output
+        wi.create_output_work_item(files=imagesList, save=True)
 
     except BufferError as e:
         exit(e)
