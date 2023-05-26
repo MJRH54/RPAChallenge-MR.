@@ -32,15 +32,15 @@ class WebControl:
         Wait for image in the browser.
         """
         time.sleep(0.0001)
-        IMAGE_BASE = '//*[@id="site-content"]/div/div[2]/div/ol/'+locator
-        if not driver.is_element_visible(IMAGE_BASE):
-            for i in range(1,3):
-                IMAGE_BASE = f'//*[@id="site-content"]/div/div[{i}]/div[2]/ol/' + locator
+        try:
+            maxTimeReached = 0
+            waitElement = driver.is_element_visible(locator)
+            while not waitElement and maxTimeReached < 1:
                 waitElement = driver.is_element_visible(locator)
-                if waitElement:
-                    break
-
-        return IMAGE_BASE      
+                maxTimeReached += 0.1
+        except:
+            pass
+  
     
     def clickElement(self, driver: Selenium, locator: str):
         """
@@ -78,5 +78,6 @@ class WebControl:
         if not self.fileSys.does_directory_exist(self.imageFolderPath):
             self.fileSys.create_directory(self.imageFolderPath)
         fileName = self.imageFolderPath + imageName
-        xpath = self.wait_for_image(driver=driver,locator=locator)
-        driver.capture_element_screenshot(locator=xpath,filename=fileName)
+        self.wait_for_image(driver=driver,locator=locator)
+        driver.capture_element_screenshot(locator=locator,filename=fileName)
+        return fileName
